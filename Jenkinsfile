@@ -71,7 +71,7 @@ pipeline {
                     export KUBECONFIG=~/.kube/config
                     cd tests
                     cp resources/options.yaml.template resources/options.yaml
-                    wget https://github.com/mikefarah/yq/releases/download/v4.13.2/yq_linux_amd64 -O /usr/local/bin/yq && chmod +x /usr/local/bin/yq
+                    curl https://github.com/mikefarah/yq/releases/download/v4.13.2/yq_linux_amd64 --output /usr/local/bin/yq && chmod +x /usr/local/bin/yq
                     /usr/local/bin/yq e -i '.options.hub.name="'"\$HUB_CLUSTER_NAME"'"' resources/options.yaml
                     /usr/local/bin/yq e -i '.options.hub.nbaseDomainame="'"\$BASE_DOMAIN"'"' resources/options.yaml
                     ginkgo -v pkg/tests/ -- -options=../../resources/options.yaml -v=3

@@ -16,23 +16,6 @@ pipeline {
         CI = 'true'
     }
     stages {
-        // stage('Test Setup') {
-        //     steps {
-        //         sh """
-        //         export OC_CLUSTER_USER="${params.OC_CLUSTER_USER}"
-        //         export OC_HUB_CLUSTER_PASS="${params.OC_HUB_CLUSTER_PASS}"
-        //         export OC_HUB_CLUSTER_API_URL="${params.OC_HUB_CLUSTER_API_URL}"
-        //         if [[ -z "${OC_CLUSTER_USER}" || -z "${OC_HUB_CLUSTER_PASS}" || -z "${OC_HUB_CLUSTER_API_URL}" ]]; then
-        //             echo "Aborting test.. OCP connection details are required for the test execution"
-        //             exit 1
-        //         else
-        //             oc login --insecure-skip-tls-verify -u \$OC_CLUSTER_USER -p \$OC_HUB_CLUSTER_PASS \$OC_HUB_CLUSTER_API_URL
-        //             export KUBECONFIG=~/.kube/config
-        //             make test-e2e-setup
-        //         fi
-        //         """
-        //     }
-        // }
         stage('Test Run') {
             steps {
                 sh """
@@ -52,7 +35,7 @@ pipeline {
                     cp resources/options.yaml.template resources/options.yaml
                     /usr/local/bin/yq e -i '.options.hub.name="'"\$HUB_CLUSTER_NAME"'"' resources/options.yaml
                     /usr/local/bin/yq e -i '.options.hub.baseDomainame="'"\$BASE_DOMAIN"'"' resources/options.yaml
-                    ginkgo -v pkg/tests/ -- -options=../../resources/options.yaml -v=3
+                    ginkgo -v pkg/tests/ -- -options=resources/options.yaml -v=3
                 fi
                 """
             }
@@ -62,8 +45,8 @@ pipeline {
     }
     post {
         always {
-            archiveArtifacts artifacts: 'results/*', followSymlinks: false
-            junit 'results/*.xml'
+            archiveArtifacts artifacts: 'tests/pkg/tests/*.xml', followSymlinks: false
+            junit 'tests/pkg/tests/*.xml'
         }
     }
 }

@@ -64,7 +64,6 @@ pipeline {
                 else
                     oc login --insecure-skip-tls-verify -u \$OC_CLUSTER_USER -p \$OC_HUB_CLUSTER_PASS \$OC_HUB_CLUSTER_API_URL
                     export KUBECONFIG=~/.kube/config
-                    cd tests
                     make test-e2e-setup
                 fi
                 """

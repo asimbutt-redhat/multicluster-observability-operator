@@ -1,9 +1,6 @@
 pipeline {
     agent {
-        docker {
-            image 'quay.io/rhn_support_abutt/ginkgo_1_14_2-fedora-32'
-            args '--network host -u 0:0 -p 3000:3000'
-        }
+        node { label 'docker' } 
     }
     parameters {
         string(name:'HUB_CLUSTER_NAME', defaultValue: 'abutt-mycluster01', description: 'Name of Hub cluster')
@@ -55,11 +52,9 @@ pipeline {
         CI = 'true'
     }
     stages {
-        stage('Test') {
+        stage('Test Setup') {
             steps {
                 sh """
-                export HUB_CLUSTER_NAME="${params.HUB_CLUSTER_NAME}"
-                export BASE_DOMAIN="${params.BASE_DOMAIN}"
                 export OC_CLUSTER_USER="${params.OC_CLUSTER_USER}"
                 export OC_HUB_CLUSTER_PASS="${params.OC_HUB_CLUSTER_PASS}"
                 export OC_HUB_CLUSTER_API_URL="${params.OC_HUB_CLUSTER_API_URL}"
@@ -71,6 +66,28 @@ pipeline {
                     export KUBECONFIG=~/.kube/config
                     cd tests
                     make test-e2e-setup
+                fi
+                """
+            }
+        }
+        stage('Test Run') {
+            agent {
+                docker {
+                    image 'quay.io/rhn_support_abutt/ginkgo_1_14_2-fedora-32'
+                    args '--network host -u 0:0'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh """
+                export HUB_CLUSTER_NAME="${params.HUB_CLUSTER_NAME}"
+                export BASE_DOMAIN="${params.BASE_DOMAIN}"
+                if [[ -z "${HUB_CLUSTER_NAME}" || -z "${BASE_DOMAIN}" ]]; then
+                    echo "Aborting test.. HUB details are required for the test execution"
+                    exit 1
+                else
+                    export KUBECONFIG=~/.kube/config
+                    cd tests
                     cp resources/options.yaml.template resources/options.yaml
                     /usr/local/bin/yq e -i '.options.hub.name="'"\$HUB_CLUSTER_NAME"'"' resources/options.yaml
                     /usr/local/bin/yq e -i '.options.hub.nbaseDomainame="'"\$BASE_DOMAIN"'"' resources/options.yaml
@@ -79,6 +96,8 @@ pipeline {
                 """
             }
         }
+
+
     }
     post {
         always {

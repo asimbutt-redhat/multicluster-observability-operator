@@ -11,6 +11,45 @@ pipeline {
         string(name:'OC_CLUSTER_USER', defaultValue: 'kubeadmin', description: 'OCP Hub User Name')
         string(name:'OC_HUB_CLUSTER_PASS', defaultValue: '', description: 'OCP Hub Password')
         string(name:'OC_HUB_CLUSTER_API_URL', defaultValue: 'https://api.abutt-mycluster01.dev09.red-chesterfield.com:6443', description: 'OCP Hub API URL')
+        extendedChoice(
+            name: 'GIT_BRANCH',
+            description: 'GIT Branch to use for the job',
+            visibleItemCount: 10,
+            multiSelectDelimiter: ',',
+            defaultValue: "main"
+            type: 'PT_SINGLE_SELECT',
+            groovyScript: '''
+                    import jenkins.*
+                    import jenkins.model.* 
+                    import hudson.*
+                    import hudson.model.*
+                    def gitURL="github.com/asimbutt-redhat/multicluster-observability-operator.git"
+                    def jenkinsCredentials = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+                            com.cloudbees.plugins.credentials.Credentials.class,
+                            Jenkins.instance,
+                            null,
+                            null
+                    );
+
+                    for (creds in jenkinsCredentials) {
+                    if(creds.id == "538c7b8c-8b59-448a-9703-88aeb821e728"){
+                        def username = creds.username;
+                        def password = creds.password;
+                        def command = "git ls-remote -h https://" + username + ":" + password + "@" + gitURL
+                        def proc = command.execute()
+                        proc.waitFor()         
+                            if ( proc.exitValue() != 0 ) {
+                                println "Error, ${proc.err.text}"
+                                System.exit(0)
+                            }     
+                        def branches = proc.in.text.readLines().collect {
+                            it.replaceAll(/[a-z0-9]*\trefs\/heads\//, '') 
+                            }   
+                        return branches.join(",")                        
+                        }
+                    }
+            '''
+        )
     }
     environment {
         CI = 'true'

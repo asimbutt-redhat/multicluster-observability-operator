@@ -67,7 +67,7 @@ pipeline {
                     echo "Aborting test.. OCP connection details are required for the test execution"
                     exit 1
                 else
-                    oc login --insecure-skip-tls-verify -u \$OCP_CLUSTER_USER -p \$OC_HUB_CLUSTER_PASS \$OC_HUB_CLUSTER_API_URL
+                    oc login --insecure-skip-tls-verify -u \$OC_CLUSTER_USER -p \$OC_HUB_CLUSTER_PASS \$OC_HUB_CLUSTER_API_URL
                     export KUBECONFIG=~/.kube/config
                     cd tests
                     cp resources/options.yaml.template resources/options.yaml

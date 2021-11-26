@@ -16,7 +16,7 @@ pipeline {
             description: 'GIT Branch to use for the job',
             visibleItemCount: 10,
             multiSelectDelimiter: ',',
-            defaultValue: "main"
+            defaultValue: "main" ,
             type: 'PT_SINGLE_SELECT',
             groovyScript: '''
                     import jenkins.*

@@ -7,7 +7,7 @@ pipeline {
     }
     parameters {
         string(name:'HUB_CLUSTER_NAME', defaultValue: 'abutt-mycluster01', description: 'Name of Hub cluster')
-        string(name:'BASE_DOMAIN', defaultValue: 'dev09.red-chesterfield.com', description: 'Base domain of Hub cluster')
+        string(name:'BASE_DOMAIN', defaultValue: 'abutt-mycluster01.dev09.red-chesterfield.com', description: 'Base domain of Hub cluster')
         string(name:'OC_CLUSTER_USER', defaultValue: 'kubeadmin', description: 'OCP Hub User Name')
         string(name:'OC_HUB_CLUSTER_PASS', defaultValue: '', description: 'OCP Hub Password')
         string(name:'OC_HUB_CLUSTER_API_URL', defaultValue: 'https://api.abutt-mycluster01.dev09.red-chesterfield.com:6443', description: 'OCP Hub API URL')
